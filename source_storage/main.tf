@@ -1,6 +1,6 @@
 locals {
-  queue_name  = "${var.project_name}-${var.ingestion_queue_name}"
-  bucket_name = "${var.project_name}-${var.bucket_name}"
+  queue_name  = "${var.project_name}-ingestion-queue"
+  bucket_name = "${var.project_name}-ingestion-source-storage"
 }
 
 module "source_storage" {
