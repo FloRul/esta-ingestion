@@ -9,7 +9,7 @@ from textractor.data.text_linearization_config import TextLinearizationConfig
 
 s3_client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
-textractor = Textractor()
+textractor = Textractor(region_name=os.environ["AWS_REGION"])
 
 
 def lambda_handler(event, context):
@@ -25,8 +25,10 @@ def lambda_handler(event, context):
             ## call textract
             print(f"Invoking textract for {key}")
             document = textractor.start_document_analysis(
-                DocumentLocation={"S3Object": {"Bucket": bucket, "Name": key}},
-                FeatureTypes=[TextractFeatures.LAYOUT, TextractFeatures.TABLES],
+                file_source=f"s3://{bucket}/{key}",
+                features=[TextractFeatures.LAYOUT, TextractFeatures.TABLES],
+                save_image=False,
+                # s3_output_path="s3://" + os.environ["RAW_TEXT_STORAGE"],
             )
 
             config = TextLinearizationConfig(
@@ -35,11 +37,11 @@ def lambda_handler(event, context):
                 title_prefix="##",
                 list_layout_prefix="*",
                 list_layout_suffix="*",
+                layout_element_separator="",
                 section_header_prefix="###",
-                add_prefixes_and_suffixes_as_words=True,
                 add_prefixes_and_suffixes_in_text=True,
             )
-            
+
             text = document.get_text(config=config)
             # write to s3
             s3_client.put_object(

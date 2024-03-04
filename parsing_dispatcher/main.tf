@@ -13,10 +13,11 @@ module "parsing_dispatcher" {
   runtime       = local.runtime
   publish       = true
   source_path   = "${path.module}/src"
-
-  store_on_s3 = true
-  s3_bucket   = var.lambda_storage_bucket
-
+  timeout       = 900
+  memory_size   = 2048
+  store_on_s3   = true
+  s3_bucket     = var.lambda_storage_bucket
+  layers        = ["arn:aws:lambda:us-east-1:446872271111:layer:textractor:1"]
   environment_variables = {
     RAW_TEXT_STORAGE = module.raw_text_storage.s3_bucket_id
     LAMBDA_MAPPING = jsonencode({
