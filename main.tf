@@ -20,6 +20,6 @@ module "parsing_dispatcher" {
   pdf_parsing_lambda_name = "pdf_parsing_lambda_mock"
   aws_region              = var.aws_region
   account_id              = data.aws_caller_identity.current.account_id
-  ingestion_queue_arn = module.source_storage.ingestion_queue_arn
+  ingestion_queue_arn     = module.source_storage.ingestion_queue_arn
 }
 

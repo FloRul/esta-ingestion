@@ -1,27 +1,50 @@
 import os
 import json
 import boto3
+from textractor import Textractor
+from textractor.visualizers.entitylist import EntityList
+from textractor.data.constants import TextractFeatures
+from textractor.data.text_linearization_config import TextLinearizationConfig
+
 
 s3_client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
+textractor = Textractor()
 
 
 def lambda_handler(event, context):
-    for record in event["Records"]:
-        object_url = json.loads(record["body"])
-        extension = os.path.splitext(object_url)[-1]
+    records = json.loads(event["Records"][0]["body"])["Records"]
+    for record in records:
+        bucket = record["s3"]["bucket"]["name"]
+        key = record["s3"]["object"]["key"]
+        extension = os.path.splitext(key)[-1]
 
-        # Get the mapping from environment variable
-        lambda_mapping = json.loads(os.environ.get("LAMBDA_MAPPING", "{}"))
+        print(f"Received message: {key} with extension {extension}")
 
-        if extension in lambda_mapping:
-            lambda_to_invoke = lambda_mapping[extension]
-            print(f"Invoking {lambda_to_invoke} for {object_url}")
-
-            lambda_client.invoke(
-                FunctionName=lambda_to_invoke,
-                InvocationType="Event",
-                Payload=json.dumps({"object_url": object_url}),
+        if extension == ".pdf":
+            ## call textract
+            print(f"Invoking textract for {key}")
+            document = textractor.start_document_analysis(
+                DocumentLocation={"S3Object": {"Bucket": bucket, "Name": key}},
+                FeatureTypes=[TextractFeatures.LAYOUT, TextractFeatures.TABLES],
             )
 
-            print(f"Invoked {lambda_to_invoke} for {object_url}")
+            config = TextLinearizationConfig(
+                hide_figure_layout=True,
+                header_prefix="#",
+                title_prefix="##",
+                list_layout_prefix="*",
+                list_layout_suffix="*",
+                section_header_prefix="###",
+                add_prefixes_and_suffixes_as_words=True,
+                add_prefixes_and_suffixes_in_text=True,
+            )
+            
+            text = document.get_text(config=config)
+            # write to s3
+            s3_client.put_object(
+                Bucket=os.environ["RAW_TEXT_STORAGE"],
+                Key=f"{key}.txt",
+                Body=text,
+            )
+            print(f"Invoked textract for {key}")

@@ -36,3 +36,4 @@ terraform.rc
 
 # Ignore the local config to test
 config.tf
+builds/*

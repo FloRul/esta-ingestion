@@ -14,6 +14,7 @@ module "source_storage" {
   versioning = {
     enabled = true
   }
+  force_destroy = true
 }
 
 resource "aws_sqs_queue" "source_ingestion" {
@@ -25,7 +26,7 @@ resource "aws_s3_bucket_notification" "ingestion_notification" {
 
   queue {
     queue_arn     = aws_sqs_queue.source_ingestion.arn
-    events        = ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]
+    events        = ["s3:ObjectCreated:*"]
     filter_suffix = var.notification_filter_prefix
   }
 }
