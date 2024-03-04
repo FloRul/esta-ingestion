@@ -10,3 +10,15 @@ variable "notification_filter_prefix" {
   type        = string
   default     = ".pdf"
 }
+
+variable "aws_region" {
+  description = "The AWS region to deploy to"
+  type        = string
+  nullable    = false
+}
+
+variable "account_id" {
+  description = "The AWS account ID"
+  type        = string
+  nullable    = false
+}

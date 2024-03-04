@@ -25,7 +25,32 @@ resource "aws_s3_bucket_notification" "ingestion_notification" {
 
   queue {
     queue_arn     = aws_sqs_queue.source_ingestion.arn
-    events        = ["s3:ObjectCreated:*, s3:ObjectRemoved:*"]
+    events        = ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]
     filter_suffix = var.notification_filter_prefix
   }
+}
+
+data "aws_iam_policy_document" "sqs_policy" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = ["arn:aws:sqs:${var.aws_region}:${var.account_id}:${aws_sqs_queue.source_ingestion.name}"]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [module.source_storage.s3_bucket_arn]
+    }
+  }
+}
+
+resource "aws_sqs_queue_policy" "sqs_policy" {
+  queue_url = aws_sqs_queue.source_ingestion.url
+  policy    = data.aws_iam_policy_document.sqs_policy.json
 }

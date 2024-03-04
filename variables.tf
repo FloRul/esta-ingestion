@@ -26,10 +26,3 @@ variable "notification_filter_prefix" {
   nullable    = true
   default     = ".pdf"
 }
-
-variable "ingestion_queue_name" {
-  description = "The name of the SQS queue where the ingestion process will send notifications"
-  type        = string
-  nullable    = false
-  default     = ""
-}

@@ -12,7 +12,7 @@ module "parsing_dispatcher" {
   runtime       = local.runtime
   publish       = true
 
-  source_path = "./src"
+  source_path = "${path.module}/src"
 
   store_on_s3 = true
   s3_bucket   = var.lambda_storage_bucket
@@ -25,6 +25,7 @@ module "parsing_dispatcher" {
       # etc ...
     })
   }
+
   attach_policy_statements = true
   policy_statements = {
     log_group = {
@@ -58,4 +59,12 @@ module "parsing_dispatcher" {
       ]
     }
   }
+}
+
+resource "aws_lambda_event_source_mapping" "ingestion_queue_trigger" {
+  depends_on = [ module.parsing_dispatcher ]
+  event_source_arn = aws_sqs_queue.queue.arn
+  enabled          = true
+  function_name    = module.parsing_dispatcher.function_name
+  batch_size       = 10
 }

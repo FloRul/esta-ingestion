@@ -3,6 +3,11 @@ variable "project_name" {
   type     = string
 }
 
+variable "ingestion_queue_arn" {
+  nullable = false
+  type     = string
+}
+
 variable "lambda_storage_bucket" {
   nullable = false
   type     = string

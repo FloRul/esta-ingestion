@@ -16,6 +16,7 @@ def lambda_handler(event, context):
 
         if extension in lambda_mapping:
             lambda_to_invoke = lambda_mapping[extension]
+            print(f"Invoking {lambda_to_invoke} for {object_url}")
 
             lambda_client.invoke(
                 FunctionName=lambda_to_invoke,
