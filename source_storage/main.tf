@@ -1,6 +1,11 @@
+locals {
+  queue_name  = "${var.project_name}-${var.ingestion_queue_name}"
+  bucket_name = "${var.project_name}-${var.bucket_name}"
+}
+
 module "source_storage" {
   source = "terraform-aws-modules/s3-bucket/aws"
-  bucket = var.bucket_name
+  bucket = local.bucket_name
   acl    = "private"
 
   control_object_ownership = true
@@ -12,7 +17,7 @@ module "source_storage" {
 }
 
 resource "aws_sqs_queue" "source_ingestion" {
-  name = var.ingestion_queue_name
+  name = local.queue_name
 }
 
 resource "aws_s3_bucket_notification" "ingestion_notification" {

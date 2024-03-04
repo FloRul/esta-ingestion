@@ -1,3 +1,9 @@
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
+  nullable    = false
+}
+
 variable "bucket_name" {
   nullable    = false
   description = "The name of the S3 bucket"

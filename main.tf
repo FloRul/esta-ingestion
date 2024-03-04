@@ -6,10 +6,11 @@ locals {
 }
 
 module "source_storage" {
-  source = "./source_storage"
-  bucket_name = var.bucket_name
+  source                     = "./source_storage"
+  project_name               = var.project_name
+  bucket_name                = var.bucket_name
   notification_filter_prefix = var.notification_filter_prefix
-  ingestion_queue_name = var.ingestion_queue_name
+  ingestion_queue_name       = var.ingestion_queue_name
 }
 
 # module "ingestion_scan" {
