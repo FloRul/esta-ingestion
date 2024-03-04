@@ -2,7 +2,6 @@ import os
 import json
 import boto3
 from textractor import Textractor
-from textractor.visualizers.entitylist import EntityList
 from textractor.data.constants import TextractFeatures
 from textractor.data.text_linearization_config import TextLinearizationConfig
 
